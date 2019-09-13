@@ -26,12 +26,14 @@ define( 'GTM4WP_OPTION_INCLUDE_POSTTITLE', 'include-posttitle' );
 define( 'GTM4WP_OPTION_INCLUDE_POSTCOUNT', 'include-postcount' );
 define( 'GTM4WP_OPTION_INCLUDE_POSTID', 'include-postid' );
 define( 'GTM4WP_OPTION_INCLUDE_POSTFORMAT', 'include-postformat' );
+define( 'GTM4WP_OPTION_INCLUDE_POSTTERMLIST',  'include-postterms' );
 define( 'GTM4WP_OPTION_INCLUDE_SEARCHDATA', 'include-searchdata' );
 define( 'GTM4WP_OPTION_INCLUDE_BROWSERDATA', 'include-browserdata' );
 define( 'GTM4WP_OPTION_INCLUDE_OSDATA', 'include-osdata' );
 define( 'GTM4WP_OPTION_INCLUDE_DEVICEDATA', 'include-devicedata' );
 define( 'GTM4WP_OPTION_INCLUDE_MISCGEO', 'include-miscgeo' );
 define( 'GTM4WP_OPTION_INCLUDE_MISCGEOAPI', 'geo-apikey' );
+define( 'GTM4WP_OPTION_INCLUDE_MISCGEOCF', 'include-miscgeo-cloudflare' );
 define( 'GTM4WP_OPTION_INCLUDE_WEATHER', 'include-weather' );
 define( 'GTM4WP_OPTION_INCLUDE_WEATHERUNITS', 'weather-weatherunits' );
 define( 'GTM4WP_OPTION_INCLUDE_WEATHEROWMAPI', 'weather-openweathermap-apikey' );
@@ -97,14 +99,18 @@ define( 'GTM4WP_OPTION_INTEGRATE_WPCF7', 'integrate-wpcf7' );
 define( 'GTM4WP_OPTION_INTEGRATE_WOOCOMMERCE', 'integrate-woocommerce' );
 define( 'GTM4WP_OPTION_INTEGRATE_WCTRACKCLASSICEC', 'integrate-woocommerce-track-classic-ecommerce' );
 define( 'GTM4WP_OPTION_INTEGRATE_WCTRACKENHANCEDEC', 'integrate-woocommerce-track-enhanced-ecommerce' );
+define( 'GTM4WP_OPTION_INTEGRATE_WCPRODPERIMPRESSION', 'integrate-woocommerce-product-per-impression' );
+define( 'GTM4WP_OPTION_INTEGRATE_WCEECCARTASFIRSTSTEP', 'integrate-woocommerce-cart-as-first-step' );
+define( 'GTM4WP_OPTION_INTEGRATE_WCEINCLUDECARTINDL',    'integrate-woocommerce-cart-content-in-datalayer' );
+define( 'GTM4WP_OPTION_INTEGRATE_WCEECBRANDTAXONOMY',    'integrate-woocommerce-brand-taxonomy' );
 define( 'GTM4WP_OPTION_INTEGRATE_WCREMARKETING', 'integrate-woocommerce-remarketing' );
 define( 'GTM4WP_OPTION_INTEGRATE_WCUSESKU', 'integrate-woocommerce-remarketing-usesku' );
 define( 'GTM4WP_OPTION_INTEGRATE_WCUSEFULLCATEGORYPATH', 'integrate-woocommerce-use-full-category-path' );
 define( 'GTM4WP_OPTION_INTEGRATE_WCREMPRODIDPREFIX', 'integrate-woocommerce-remarketing-productidprefix' );
-define( 'GTM4WP_OPTION_INTEGRATE_WCEECCARTASFIRSTSTEP', 'integrate-woocommerce-cart-as-first-step' );
 define( 'GTM4WP_OPTION_INTEGRATE_WCCUSTOMERDATA', 'integrate-woocommerce-customer-data' );
+define( 'GTM4WP_OPTION_INTEGRATE_WCORDERDATA', 'integrate-woocommerce-order-data' );
 define( 'GTM4WP_OPTION_INTEGRATE_WCEXCLUDETAX', 'integrate-woocommerce-exclude-tax' );
-define( 'GTM4WP_OPTION_INTEGRATE_WCPRODPERIMPRESSION', 'integrate-woocommerce-product-per-impression' );
+define( 'GTM4WP_OPTION_INTEGRATE_WCEXCLUDESHIPPING', 'integrate-woocommerce-exclude-shipping' );
 define( 'GTM4WP_OPTION_INTEGRATE_WCNOORDERTRACKEDFLAG', 'integrate-woocommerce-do-not-use-order-tracked-flag' );
 
 define( 'GTM4WP_OPTION_INTEGRATE_GOOGLEOPTIMIZEIDS', 'integrate-google-optimize-idlist' );
@@ -149,12 +155,14 @@ $gtm4wp_defaultoptions = array(
 	GTM4WP_OPTION_INCLUDE_POSTCOUNT               => false,
 	GTM4WP_OPTION_INCLUDE_POSTID                  => false,
 	GTM4WP_OPTION_INCLUDE_POSTFORMAT              => false,
+	GTM4WP_OPTION_INCLUDE_POSTTERMLIST            => false,
 	GTM4WP_OPTION_INCLUDE_SEARCHDATA              => false,
 	GTM4WP_OPTION_INCLUDE_BROWSERDATA             => false,
 	GTM4WP_OPTION_INCLUDE_OSDATA                  => false,
 	GTM4WP_OPTION_INCLUDE_DEVICEDATA              => false,
 	GTM4WP_OPTION_INCLUDE_MISCGEO                 => false,
 	GTM4WP_OPTION_INCLUDE_MISCGEOAPI              => '',
+	GTM4WP_OPTION_INCLUDE_MISCGEOCF               => false,
 	GTM4WP_OPTION_INCLUDE_WEATHER                 => false,
 	GTM4WP_OPTION_INCLUDE_WEATHERUNITS            => 0,
 	GTM4WP_OPTION_INCLUDE_WEATHEROWMAPI           => '',
@@ -219,14 +227,18 @@ $gtm4wp_defaultoptions = array(
 
 	GTM4WP_OPTION_INTEGRATE_WCTRACKCLASSICEC      => false,
 	GTM4WP_OPTION_INTEGRATE_WCTRACKENHANCEDEC     => false,
+	GTM4WP_OPTION_INTEGRATE_WCPRODPERIMPRESSION   => 0,
+	GTM4WP_OPTION_INTEGRATE_WCEECCARTASFIRSTSTEP  => false,
+	GTM4WP_OPTION_INTEGRATE_WCEINCLUDECARTINDL    => false,
+	GTM4WP_OPTION_INTEGRATE_WCEECBRANDTAXONOMY    => '',
 	GTM4WP_OPTION_INTEGRATE_WCREMARKETING         => false,
 	GTM4WP_OPTION_INTEGRATE_WCUSESKU              => false,
 	GTM4WP_OPTION_INTEGRATE_WCUSEFULLCATEGORYPATH => false,
 	GTM4WP_OPTION_INTEGRATE_WCREMPRODIDPREFIX     => '',
-	GTM4WP_OPTION_INTEGRATE_WCEECCARTASFIRSTSTEP  => false,
 	GTM4WP_OPTION_INTEGRATE_WCCUSTOMERDATA        => false,
+	GTM4WP_OPTION_INTEGRATE_WCORDERDATA           => false,
 	GTM4WP_OPTION_INTEGRATE_WCEXCLUDETAX          => false,
-	GTM4WP_OPTION_INTEGRATE_WCPRODPERIMPRESSION   => 0,
+	GTM4WP_OPTION_INTEGRATE_WCEXCLUDESHIPPING     => false,
 	GTM4WP_OPTION_INTEGRATE_WCNOORDERTRACKEDFLAG  => false,
 
 	GTM4WP_OPTION_INTEGRATE_GOOGLEOPTIMIZEIDS     => '',
@@ -235,7 +247,7 @@ $gtm4wp_defaultoptions = array(
 
 	GTM4WP_OPTION_INTEGRATE_WPECOMMERCE           => false,
 
-	GTM4WP_OPTION_INTEGRATE_AMPID                 => '',
+	GTM4WP_OPTION_INTEGRATE_AMPID                 => ''
 );
 
 function gtm4wp_reload_options() {
@@ -255,7 +267,21 @@ function gtm4wp_reload_options() {
 		unset( $storedoptions[ GTM4WP_OPTION_INTEGRATE_WOOCOMMERCE ] );
 	}
 
-	return array_merge( $gtm4wp_defaultoptions, $storedoptions );
+	$return_options = array_merge( $gtm4wp_defaultoptions, $storedoptions );
+
+	if ( defined( 'GTM4WP_HARDCODED_GTM_ID' ) ) {
+		$return_options[ GTM4WP_OPTION_GTM_CODE ] = GTM4WP_HARDCODED_GTM_ID;
+	}
+
+	if ( defined( 'GTM4WP_HARDCODED_GTM_ENV_AUTH' ) ) {
+		$return_options[ GTM4WP_OPTION_ENV_GTM_AUTH ] = GTM4WP_HARDCODED_GTM_ENV_AUTH;
+	}
+
+	if ( defined( 'GTM4WP_HARDCODED_GTM_ENV_PREVIEW' ) ) {
+		$return_options[ GTM4WP_OPTION_ENV_GTM_PREVIEW ] = GTM4WP_HARDCODED_GTM_ENV_PREVIEW;
+	}
+
+	return $return_options;
 }
 
 function gtp4wp_debug_file( $debug_data ) {

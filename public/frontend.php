@@ -240,6 +240,20 @@ function gtm4wp_add_basic_datalayer_data( $dataLayer ) {
 			$dataLayer['pagePostDateMonth'] = get_the_date( 'm' );
 			$dataLayer['pagePostDateDay']   = get_the_date( 'd' );
 		}
+
+		if ( $gtm4wp_options[ GTM4WP_OPTION_INCLUDE_POSTTERMLIST ] ) {
+			$dataLayer["pagePostTerms"] = array();
+			$object_taxonomies = get_object_taxonomies( get_post_type() );
+			foreach( $object_taxonomies as $one_object_taxonomy ) {
+				$post_taxonomy_values = get_the_terms( $GLOBALS[ "post" ]->ID, $one_object_taxonomy );
+				if ( is_array( $post_taxonomy_values ) ) {
+					$dataLayer["pagePostTerms"][$one_object_taxonomy] = array();
+					foreach( $post_taxonomy_values as $one_taxonomy_value ) {
+						$dataLayer["pagePostTerms"][$one_object_taxonomy][] = $one_taxonomy_value->name;
+					}
+				}
+			}
+		}
 	}
 
 	if ( is_archive() || is_post_type_archive() ) {
@@ -501,6 +515,10 @@ function gtm4wp_add_basic_datalayer_data( $dataLayer ) {
 		$dataLayer['gtm.blacklist'] = $_gtmblacklist;
 	}
 
+	if ( $gtm4wp_options[ GTM4WP_OPTION_INCLUDE_MISCGEOCF ] && isset( $_SERVER['HTTP_CF_IPCOUNTRY'] ) ) {
+		$dataLayer['geoCloudflareCountryCode'] = $_SERVER['HTTP_CF_IPCOUNTRY'];
+	}
+
 	if ( $gtm4wp_options[ GTM4WP_OPTION_INCLUDE_WEATHER ] || $gtm4wp_options[ GTM4WP_OPTION_INCLUDE_MISCGEO ] ) {
 		if ( $gtm4wp_options[ GTM4WP_OPTION_INCLUDE_WEATHER ] ) {
 			$dataLayer['weatherCategory']    = __( '(no weather data available)', 'duracelltomi-google-tag-manager' );
@@ -757,7 +775,7 @@ function gtm4wp_wp_header_top( $echo = true ) {
 
 	$_gtm_top_content = '
 <!-- Google Tag Manager for WordPress by gtm4wp.com -->
-<script data-cfasync="false" type="text/javascript">//<![CDATA[
+<script data-cfasync="false" data-pagespeed-no-defer type="text/javascript">//<![CDATA[
 	var gtm4wp_datalayer_name = "' . $gtm4wp_datalayer_name . '";
 	var ' . $gtm4wp_datalayer_name . ' = ' . $gtm4wp_datalayer_name . ' || [];';
 
@@ -789,18 +807,18 @@ function gtm4wp_wp_header_top( $echo = true ) {
 }
 
 function gtm4wp_wp_header_begin( $echo = true ) {
-	global $gtm4wp_datalayer_name, $gtm4wp_datalayer_json, $gtm4wp_options;
+	global $gtm4wp_datalayer_name, $gtm4wp_datalayer_json, $gtm4wp_options, $woocommerce;
 
 	$_gtm_header_content = '
 <!-- Google Tag Manager for WordPress by gtm4wp.com -->
-<script data-cfasync="false" type="text/javascript">//<![CDATA[';
+<script data-cfasync="false" data-pagespeed-no-defer type="text/javascript">//<![CDATA[';
 
 	if ( $gtm4wp_options[ GTM4WP_OPTION_GTM_CODE ] != '' ) {
 		$gtm4wp_datalayer_data = array();
 		$gtm4wp_datalayer_data = (array) apply_filters( GTM4WP_WPFILTER_COMPILE_DATALAYER, $gtm4wp_datalayer_data );
 
 		if ( $gtm4wp_options[ GTM4WP_OPTION_INCLUDE_REMARKETING ] ) {
-			// add adwords remarketing tags as suggested here:
+			// add Google Ads remarketing tags as suggested here:
 			// https://support.google.com/tagmanager/answer/3002580?hl=en
 			add_filter( GTM4WP_WPFILTER_COMPILE_REMARKTING, 'gtm4wp_filter_visitor_keys' );
 			$gtm4wp_remarketing_tags = (array) apply_filters( GTM4WP_WPFILTER_COMPILE_REMARKTING, $gtm4wp_datalayer_data );
@@ -832,7 +850,63 @@ function gtm4wp_wp_header_begin( $echo = true ) {
 		);
 
 		$_gtm_header_content .= '
-	' . $gtm4wp_datalayer_name . '.push(' . $gtm4wp_datalayer_json . ');';
+	var dataLayer_content = ' . $gtm4wp_datalayer_json . ';';
+
+		// fire WooCommerce order double tracking protection only if WooCommerce is active and user is on the order received page
+		if ( isset( $gtm4wp_options ) && ( $gtm4wp_options[ GTM4WP_OPTION_INTEGRATE_WCTRACKCLASSICEC ] || $gtm4wp_options[ GTM4WP_OPTION_INTEGRATE_WCTRACKENHANCEDEC ] ) && isset( $woocommerce ) && is_order_received_page() ) {
+
+			$_gtm_header_content .= '
+	// if dataLayer contains ecommerce purchase data, check whether it has been already tracked
+	if ( dataLayer_content.transactionId || ( dataLayer_content.ecommerce && dataLayer_content.ecommerce.purchase ) ) {
+		// read order id already tracked from cookies
+		var gtm4wp_orderid_tracked = "";
+		var gtm4wp_cookie = "; " + document.cookie;
+		var gtm4wp_cookie_parts = gtm4wp_cookie.split( "; gtm4wp_orderid_tracked=" );
+		if ( gtm4wp_cookie_parts.length == 2 ) {
+			gtm4wp_orderid_tracked = gtm4wp_cookie_parts.pop().split(";").shift();
+		}
+
+		// check enhanced ecommerce
+		if ( dataLayer_content.ecommerce && dataLayer_content.ecommerce.purchase ) {
+			if ( gtm4wp_orderid_tracked && ( dataLayer_content.ecommerce.purchase.actionField.id == gtm4wp_orderid_tracked ) ) {
+				delete dataLayer_content.ecommerce.purchase;
+			} else {
+				gtm4wp_orderid_tracked = dataLayer_content.ecommerce.purchase.actionField.id;
+			}
+		}
+
+		// check standard ecommerce
+		if ( dataLayer_content.transactionId ) {
+			if ( gtm4wp_orderid_tracked && ( dataLayer_content.transactionId == gtm4wp_orderid_tracked ) ) {
+				delete dataLayer_content.transactionId;
+				delete dataLayer_content.transactionDate;
+				delete dataLayer_content.transactionType;
+				delete dataLayer_content.transactionAffiliation;
+				delete dataLayer_content.transactionTotal;
+				delete dataLayer_content.transactionShipping;
+				delete dataLayer_content.transactionTax;
+				delete dataLayer_content.transactionPaymentType;
+				delete dataLayer_content.transactionCurrency;
+				delete dataLayer_content.transactionShippingMethod;
+				delete dataLayer_content.transactionPromoCode;
+				delete dataLayer_content.transactionProducts;
+			} else {
+				gtm4wp_orderid_tracked = dataLayer_content.transactionId;
+			}
+		}
+
+		if ( gtm4wp_orderid_tracked ) {
+			var gtm4wp_orderid_cookie_expire = new Date();
+			gtm4wp_orderid_cookie_expire.setTime( gtm4wp_orderid_cookie_expire.getTime() + (365*24*60*60*1000) );
+			var gtm4wp_orderid_cookie_expires = "expires="+ gtm4wp_orderid_cookie_expire.toUTCString();
+			document.cookie = "gtm4wp_orderid_tracked=" + gtm4wp_orderid_tracked + ";" + gtm4wp_orderid_cookie_expire + ";path=/";
+		}
+
+	}';
+		}
+
+		$_gtm_header_content .= '
+	' . $gtm4wp_datalayer_name . '.push( dataLayer_content );';
 	}
 
 	$_gtm_header_content .= '//]]>
@@ -933,6 +1007,12 @@ add_action( 'body_open', 'gtm4wp_wp_body_open' );
 add_action( 'genesis_before', 'gtm4wp_wp_body_open' ); // Genisis theme
 add_action( 'generate_before_header', 'gtm4wp_wp_body_open', 0 ); // GeneratePress theme
 add_action( 'elementor/page_templates/canvas/before_content', 'gtm4wp_wp_body_open' ); // Elementor
+add_action( 'ct_before_builder', 'gtm4wp_wp_body_open', 0 ); // Oxygen Builder
+add_action( 'fl_before_builder', 'gtm4wp_wp_body_open', 0 ); // Beaver Builder Theme
+
+// standard WP theme support for body open tags
+add_action( 'wp_body_open', 'gtm4wp_wp_body_open' );
+
 add_filter( 'rocket_excluded_inline_js_content', 'gtm4wp_rocket_excluded_inline_js_content' ); // WP Rocket
 if ( isset( $GLOBALS['gtm4wp_options'] ) && ( $GLOBALS['gtm4wp_options'][ GTM4WP_OPTION_INTEGRATE_WCTRACKCLASSICEC ] || $GLOBALS['gtm4wp_options'][ GTM4WP_OPTION_INTEGRATE_WCTRACKENHANCEDEC ] )
 	&& isset( $GLOBALS['woocommerce'] ) ) {
